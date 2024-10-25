@@ -1,0 +1,22 @@
+---
+title: "Model M2 equation"
+author: "Gavin L Simpson"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    keep_tex: true
+    latex_engine: xelatex
+  word_document: default
+---
+
+The model `m2` can be written in mathy form as
+
+
+\begin{align*}
+y_i             &\sim \mathrm{NB}(\mu_i, \phi) \\
+\mathbb{E}(y_i) &= \mu_i \\
+\log(\mu_i)        &= f(\mathtt{DOY}_i) + f(\mathtt{Year}_i) + f(\mathtt{DOY}_i, \mathtt{Year}_i) + \\
+ &\mathrel{\phantom{=}} f_{\mathtt{Year}(i)}(\mathtt{DOY}_i) + f_{\mathtt{Plot}(i), \mathtt{Species}(i)}(\mathtt{DOY}_i, \mathtt{Year}_i) +\\ 
+ &\mathrel{\phantom{=}}\gamma_{\mathtt{Plot}(i)} + \xi_{\mathtt{Species}(i)} + \log(\mathtt{exposure}_i)
+\end{align*}
+where we model the observed muscid fly abundances ($y_i$) as random variables that are distributed negative binomial with expected value $\mu_i$ and dispersion parameter $\phi$. The log of the expected abundance, $\log(\mu_i)$ was modelled as a sum of smooth functions. The first three functions are, *sensu* Pedersen *et al* (2019), average or global smooths of day of year ($f(\mathtt{DOY}_i)$), year ($f(\mathtt{Year}_i)$), and their smooth interaction ($f(\mathtt{DOY}_i, \mathtt{Year}_i)$), which model the common seasonal and between year trends, with the interaction allowing the seasonal trend to vary smoothly over years. To model individual year's seasonal effects, we use a random smooth of the day of year ($f_{\mathtt{Year}(i)}(\mathtt{DOY}_i)$); which includes the equivalent of random intercepts for each year, allowing for greater between-year variation than can be captured by the three average smooths. To model variation in seasonal and between-year trends within species and plots, we use a tensor product smooth with four marginal smooths; i) day of year, ii) year, iii) random effect for plot, and iv) random effect of species ($f_{\mathtt{Plot}(i), \mathtt{Species}(i)}(\mathtt{DOY}_i, \mathtt{Year}_i)$). To allow the abundance of muscid flies to vary between plots ($\gamma_{\mathtt{Plot}(i)}$) and species ($\xi_{\mathtt{Species}(i)}$), we use random intercepts. To account for the exposure time of the traps, and turn our model into one for *daily* muscid fly abundance, we included an offset term in the form of $\log(\mathtt{exposure}_i)$, where $\mathtt{exposure}_i$ is the number of days the trap was exposed for each observed count. We index individual observations via subscript $i$, and the notation $\mathtt{Year}(i)$, $\mathtt{Plot}(i)$, and $\mathtt{Species}(i)$ is used to indicate the year, plot, and species to which the $i$th observation belongs.
