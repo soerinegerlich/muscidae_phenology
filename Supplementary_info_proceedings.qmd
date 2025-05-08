@@ -1,0 +1,1785 @@
+---
+title: "Supplementary Information"
+subtitle: "for 'Species' traits modulate rapid changes in flight time in high-Arctic muscid flies under climate change'"
+author: "Gerlich, H.S., Loboda. S., Simpson, G., Savage, J., Schmidt, N.M., Holmstrup, M. & Høye, T.T."
+format: html
+editor: visual
+---
+
+```{r fig.height=9,fig.width=6}
+#| echo: false
+#| message: false
+#| warning: false
+
+pkgs <- c("tibble", "readr", "dplyr", "here", "tidyr", "ggplot2", "mgcv",
+          "gratia", "purrr", "furrr", "lme4")
+vapply(pkgs, library, FUN.VALUE = logical(1L), character.only = TRUE,
+       logical.return = TRUE)
+
+df <- read_csv("Data/Species_data_Clean/All_species_clean.csv")
+
+df <- df |>
+  mutate(Plot = as.factor(Plot),
+         Species_name = as.factor(Species_name),
+         fyear = as.factor(df$Year),
+         exposure = rep(7, length(Plot)))
+
+df %>%
+  ggplot(aes(x = DOY, y = Abundance, group = Year, colour = Year)) +
+  geom_line(alpha = 0.5)+
+  scale_color_viridis_c(option = "plasma") +
+  facet_grid(Species_name ~ Plot, scales = "free", space = "free_x")
+```
+
+**Figure S1.1** Abundance of muscid fly species in each vegetation type (plot) with each line color indicating year. Not all species were caught in all vegetation types (plot).
+
+\newpage
+
+The dataset contains abundance estimates for 14 species (Table S1.1). However, the abundance of three species were deemed insufficient to include in further phenological analysis. If more than 3 individuals were caught across a season in more than three years, they were considered appropriate to include in further analysis. We did not have sufficient abundance data for the following species:\
+***Limnophora groenlandica***: Abundance in 1996 in the wet fen (Art2) was sufficient (\~20 individuals caught in the season), however, one individual or zero were caught across the whole season in subsequent years (1997 - 2014).\
+***Spilogona melanosoma***: Abundance in 1996, 1997, 1998 in the wet fen (Art2) was sufficient (\~5 individuals caught in the season), however, one individual or zero were caught across the whole season in subsequent years (1999 - 2014).\
+***Spilogona micans***: A single individual was caught in 2002 and 2004 in the arid heath (Art5).
+
+**Table S1.1** Number of individual muscid flies identified per species, collected at Zackenberg, NE Greenland, in three habitats: Arid heath, Mesic heath and Wet fen between 1996 and 2014.'
+
+| Genus        | Species                         | Arid heath | Mesic heath | Wet fen  |
+|--------------|---------------------------------|------------|-------------|----------|
+| *Drymeia*    | *groenlandica* (Lundbeck, 1901) | 53         | 22          | 2        |
+|              | *segnis* (Holmgren, 1883)       | 1588       | 2381        | 630      |
+| *Limnophora* | *groenlandica* (Malloch, 1920)  | 5          | 3           | 20       |
+| *Phaonia*    | *bidentata* (Ringdahl, 1933)    | 104        | 2           | 6        |
+| *Spilogona*  | *almqvistii* (Holmgren, 1880)   | 101        | 174         | 212      |
+|              | *deflorata* (Holmgren, 1872)    | 0          | 0           | 43       |
+|              | *dorsata* (Zetterstedt, 1845)   | 132        | 190         | 1367     |
+|              | *malaisei* (Ringdahl, 1920)     | 19         | 5           | 129      |
+|              | *melanosoma* (Huckett, 1932)    | 0          | 0           | 20       |
+|              | *micans* (Ringdahl, 1920)       | 2          | 0           | 0        |
+|              | *novaesibiriae* (Frey, 1915)    | 0          | 0           | 330      |
+|              | *sanctipauli* (Malloch, 1921)   | 3008       | 3117        | 230      |
+|              | *tundrae* (Schnabl, 19915)      | 1          | 6           | 1192     |
+|              | *zaitzevi* (Schnabl, 1915)      | 5          | 53          | 3666     |
+| **Total**    |                                 | **5018**   | **5953**    | **7847** |
+
+\newpage
+
+#### Models tested
+
+In all models tested, the observed muscid fly abundances ($y_i$) were modelled as random variables with a negative binomial distribution with expected value $\mu_i$ and dispersion parameter $\phi$ :
+
+\begin{align*} y_i             &\sim \mathrm{NB}(\mu_i, \phi) \\ \mathbb{E}(y_i) &= \mu_i \\ \end{align*}
+
+The log of the expected abundance, , $\log(\mu_i)$ was modelled as a sum of smooth functions as specified in the below table:
+
+\newpage
+
+**Table S1.2** - Comparison of generalized additive models tested to model the distribution of seasonal abundance of muscid fly species. models are compared by AIC values and deviance (%).
+
+|   | Model ($\log(\mu_i)$ = ...) | *df* | AIC | Deviance |
+|----|:--:|----|----|----|
+| M.1 | \\begin{align\*} \\ &f(\\mathtt{DOY}\_i) + f(\\mathtt{Year}\_i) + f(\\mathtt{DOY}\_i, \\mathtt{Year}\_i) + \\\\ &f(\\mathtt{Year}\_i, \\mathtt{Species}\_i) + \\mathrel{\\phantom{=}}\\gamma\_{\\mathtt{Plot}(i)} \\end{align\*} | 87.65 | 15792.80 | 73.7% |
+| M.2 | \\begin{align\*} \\ &f(\\mathtt{DOY}\_i) + f(\\mathtt{Year}\_i) + f(\\mathtt{DOY}\_i, \\mathtt{Year}\_i) + \\\\ &\\mathrel{\\phantom{=}} f\_{\\mathtt{Year}(i)}(\\mathtt{DOY}\_i) + f\_{\\mathtt{Plot}(i), \\mathtt{Species}(i)}(\\mathtt{DOY}\_i, \\mathtt{Year}\_i) +\\\\ &\\mathrel{\\phantom{=}}\\gamma\_{\\mathtt{Plot}(i)} + \\xi\_{\\mathtt{Species}(i)} + \\log(\\mathtt{exposure}\_i) \\end{align\*} | 648.19 | 11369.85 | 87.9% |
+| M.3 | \\begin{align\*} \\ &f(\\mathtt{DOY}\_i) + f(\\mathtt{Year}\_i) + f(\\mathtt{DOY}\_i, \\mathtt{Species}\_i) + \\\\ &f(\\mathtt{DOY}\_i, \\mathtt{Plot}\_i) + f(\\mathtt{Year}\_i, \\mathtt{Species}\_i) + \\\\ &f(\\mathtt{Year}\_i, \\mathtt{Plot}\_i) + \\log(\\mathtt{exposure}\_i) \\end{align\*} | 127.43 | 15321.83 | 77.6% |
+| M.4 | \\begin{align\*} \\ &f(\\mathtt{DOY}\_i) + f(\\mathtt{Year}\_i) + f(\\mathtt{DOY}\_i, \\mathtt{Species}\_i) + \\\\ &f(\\mathtt{DOY}\_i, \\mathtt{Plot}\_i) + f(\\mathtt{Year}\_i, \\mathtt{Species}\_i) + \\\\ &f(\\mathtt{Year}\_i, \\mathtt{Plot}\_i) + \\mathrel{\\phantom{=}} f\_{\\mathtt{Year}(i)}(\\mathtt{DOY}\_i) + \\\\ &\\log(\\mathtt{exposure}\_i) \\end{align\*} | 204.20 | 14496.74 | 83.2% |
+| M.5\* | \\begin{align\*} \\ &f\_{\\mathtt{Plot}(i), \\mathtt{Species}(i)}(\\mathtt{DOY}\_i, \\mathtt{Year}\_i) +\\\\ &\\log(\\mathtt{exposure}\_i) \\end{align\*} | 1403.37 | 13393.36 | 94.7% |
+
+\*The tensor product is specified as a multidimensional group-level smoother that creates tensor products with only a single penalty for each basis function following the approach in Wood, Scheipl & Faraday, 2013.
+
+\newpage
+
+```{r fig.height=10,fig.width=6}
+#| echo: false
+#| message: false
+#| warning: false
+
+pkgs <- c("tibble", "readr", "dplyr", "here", "tidyr", "ggplot2", "mgcv",
+          "gratia", "purrr", "furrr")
+vapply(pkgs, library, FUN.VALUE = logical(1L), character.only = TRUE,
+       logical.return = TRUE)
+
+df <- read_csv("Data/Species_data_Clean/All_species_clean.csv")
+
+df <- df |>
+  mutate(Plot = as.factor(Plot),
+         Species_name = as.factor(Species_name),
+         fyear = as.factor(df$Year),
+         exposure = rep(7, length(Plot)))
+
+m_gls2 <- read_rds("m_gls2.rds")
+
+levs <- with(df, levels(fyear))
+
+m_use <- m_gls2
+
+ds_check <- gratia::data_slice(m_use, DOY = evenly(DOY, upper = 260),
+                       Year = evenly(Year, by = 1),
+                       Plot = evenly(Plot),
+                       Species_name = evenly(Species_name)) %>%
+  mutate(fyear = factor(Year, levels = levs)) %>%
+  filter(DOY <= 260)
+
+#Need to remove year 2010 from data slice
+ds_check <- subset(ds_check, !ds_check$Year == "2010")
+
+fv_check <- fitted_values(m_use, data = ds_check, scale = "response",
+  n.threads = 4)
+
+fv_check |>
+  filter(Species_name == "Dry.seg") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "D. segnis") +
+  geom_point(data = df |> filter(Species_name == "Dry.seg"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"),
+        legend.position = "none")
+
+
+fv_check |>
+  filter(Species_name == "Dry.gro") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  coord_cartesian(ylim=c(0, 20))+
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "D. groenlandica") +
+  geom_point(data = df |> filter(Species_name == "Dry.gro"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+
+
+fv_check |>
+  filter(Species_name == "Pha.bid") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "P. bidentata") +
+  coord_cartesian(ylim=c(0, 20))+
+  geom_point(data = df |> filter(Species_name == "Pha.bid"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"),
+        legend.position = "none")
+
+
+fv_check |>
+  filter(Species_name == "Spi.alm") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  coord_cartesian(ylim=c(0, 150))+
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. almqvistii") +
+  geom_point(data = df |> filter(Species_name == "Spi.alm"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+
+
+fv_check |>
+  filter(Species_name == "Spi.def") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. deflorata") +
+  coord_cartesian(ylim=c(0, 20))+
+  geom_point(data = df |> filter(Species_name == "Spi.def"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"),
+        legend.position = "none")
+
+
+fv_check |>
+  filter(Species_name == "Spi.dor") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  coord_cartesian(ylim=c(0, 150))+
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. dorsata") +
+  geom_point(data = df |> filter(Species_name == "Spi.dor"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+
+
+fv_check |>
+  filter(Species_name == "Spi.mal") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. malaisei") +
+  coord_cartesian(ylim=c(0, 20))+
+  geom_point(data = df |> filter(Species_name == "Spi.mal"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"),
+        legend.position = "none")
+
+
+fv_check |>
+  filter(Species_name == "Spi.nov") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  coord_cartesian(ylim=c(0, 100))+
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. novaesibiriae") +
+  geom_point(data = df |> filter(Species_name == "Spi.nov"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+
+
+fv_check |>
+  filter(Species_name == "Spi.san") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. sanctipauli") +
+  coord_cartesian(ylim=c(0, 200))+
+  geom_point(data = df |> filter(Species_name == "Spi.san"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"),
+        legend.position = "none")
+
+
+fv_check |>
+  filter(Species_name == "Spi.tun") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  coord_cartesian(ylim=c(0, 130))+
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. tundrae") +
+  geom_point(data = df |> filter(Species_name == "Spi.tun"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+
+
+fv_check |>
+  filter(Species_name == "Spi.zai") |>
+  ggplot(aes(x = DOY, y = .fitted, group = Year, colour = Year)) +
+  geom_ribbon(aes(x = DOY, ymin = .lower_ci, ymax = .upper_ci), alpha = 0.2,
+              inherit.aes = FALSE) +
+  geom_line() +
+  coord_cartesian(ylim=c(0, 200))+
+  ylab("Fitted values") +
+  xlab("Day of Year") +
+  labs(title = "S. zaitzevi") +
+  geom_point(data = df |> filter(Species_name == "Spi.zai"),
+             aes(x = DOY, y = Abundance), size = 1) +
+  facet_grid(Year ~ Plot) +
+  theme(plot.title = element_text(face = "italic"),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+```
+
+**Figure 1.2** Fitted values from the posterior distribution of model 2 with uncertainty bands for each year 1996 - 2014 (except year 2010 where no values are available). Each plot represents a species with panels divided in plots.
+
+\newpage
+
+```{r fig.height=8.5,fig.width=6}
+#| echo: false
+#| message: false
+#| warning: false
+
+m_gls2 <- read_rds("m_gls2.rds")
+
+par( mfrow= c(2,2) )
+mgcv::gam.check(m_gls2)
+dev.off()
+
+```
+
+**Figure 1.3** Diagnostics of the residuals for the fitted GAM model.
+
+\newpage
+
+Analyses of climate effects on phenological responses has only been considered for species with at least five observations (n \> 4). Therefore, only 10 species have been included in this part of the analyses.
+
+**Table S1.4** Description of ecological traits of Muscid fly species used in the analysis. Average seasonal timing of onset, peak and end of activity are shown in Figure S3.1. Species and plot combinations with less than five yearly phenology estimates were exempted from the analysis (*S. deflorata* only had four observations and was therefore removed. Information on ten species is included in the table).
+
+|                           |                    |                         |
+|---------------------------|--------------------|-------------------------|
+|                           | **Body size (mm)** | **Anthophilous habits** |
+| *Drymeia groenlandica*    | 5.70               | Infrequent              |
+| *Drymeia segnis*          | 6.00               | Frequent                |
+| *Phaonia bidentata*       | 5.60               | Frequent                |
+| *Spilogona almqvistii*    | 6.05               | Frequent                |
+| *Spilogona dorsata*       | 5.10               | Frequent                |
+| *Spilogona malaisei*      | 3.85               | Infrequent              |
+| *Spilogona novaesibiriae* | 4.15               | NA                      |
+| *Spilogona sanctipauli*   | 4.25               | Frequent                |
+| *Spilogona tundrae*       | 5.25               | Infrequent              |
+| *Spilogona zaitzevi*      | 5.05               | Infrequent              |
+
+\newpage
+
+```{r fig.height=5,fig.width=5}
+#| echo: false
+#| message: false
+#| warning: false
+
+df_mean_onset <- read.csv("Data/phenology_estimates/df_mean_onset.csv",sep=",",
+                        stringsAsFactors = FALSE, header = TRUE)
+
+df_mean_end <- read.csv("Data/phenology_estimates/df_mean_end.csv",sep=",",
+                     stringsAsFactors = FALSE, header = TRUE)
+
+df_mean_peak <- read.csv("Data/phenology_estimates/df_mean_peak.csv",sep=",",
+                        stringsAsFactors = FALSE, header = TRUE)
+
+df_mean_onset$species <- factor(df_mean_onset$species,                 # Relevel group factor
+                          levels = c("S.dorsata", "S.almqvistii", "P.bidentata", "S.malaisei",  "D.groenlandica", "S.sanctipauli", 
+                                     "D.segnis", "S.tundrae", "S.zaitzevi", "S.novaesibiriae"))
+
+df_mean_peak$species <- factor(df_mean_peak$species,                 # Relevel group factor
+                              levels = c("S.dorsata", "S.almqvistii", "P.bidentata", "S.malaisei",  "D.groenlandica", "S.sanctipauli", 
+                                         "D.segnis", "S.tundrae", "S.zaitzevi", "S.novaesibiriae"))
+
+
+df_mean_end$species <- factor(df_mean_end$species,                 # Relevel group factor
+                          levels = c("S.dorsata", "S.almqvistii", "P.bidentata", "S.malaisei",  "D.groenlandica", "S.sanctipauli", 
+                                     "D.segnis", "S.tundrae", "S.zaitzevi", "S.novaesibiriae"))
+
+ggplot()+
+  geom_point(df_mean_onset[complete.cases(df_mean_onset),], mapping = aes(x = average_doy, y = species), shape = 1, size = 3)+
+  xlab("Day of Year")+
+  xlim(170,240)+
+  #geom_text(aes(label = round(SE, digits = 2)), hjust=-1, vjust=-0.2)+
+  #scale_x_continuous(breaks = c(180, 190, 200, 210, 220, 230, 240))+
+  #geom_vline(xintercept = c(180, 190, 200, 210, 220), linetype="dashed", color = "gray")+
+  #scale_colour_brewer(palette = "Set1")+
+  #geom_rect(aes(xmin = min_doy, 
+  #xmax = max_doy, 
+  #ymin = as.integer(Species) - w/2,
+  #ymax = as.integer(Species) + w/2,
+  #alpha = 0.3)) + 
+  #scale_y_discrete(limits = levels)+
+  #geom_linerange(aes(xmin=average_doy-sd, xmax=average_doy+sd))+ 
+  geom_point(df_mean_peak[complete.cases(df_mean_peak),], mapping = aes(x = average_doy, y = species), shape = 5, size = 3)+
+  geom_point(df_mean_end[complete.cases(df_mean_end),], mapping = aes(x = average_doy_end, y = species), shape = 2, size = 3)+
+  #geom_vline(xintercept = 184.5, color = "red", linetype = "dashed", size = 1)+
+  #geom_rect(data = df_all,
+  #aes(xmin = min_doy, xmax = max_doy, ymin = -Inf, ymax = Inf,
+  #fill = factor(Species), alpha = 0.1))+
+  #scale_shape(guide = "none")+
+  #scale_y_discrete(expand = expansion(add = 1))+
+  theme_classic()+
+  theme(axis.title.y = element_blank(), axis.text.x = element_text(size=8, color = "black"),
+        axis.title.x = element_text(vjust=-0.2,size=8, color = "black"),
+        axis.text.y = element_text(size=8, face = "italic", color = "black"),
+        legend.text = element_text(size = 8), legend.title = element_text( size = 8),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+```
+
+**Figure S1.4** Timing of seasonal onset (circles), peak (diamonds) and end (rectangles) of activity (Day of Year) averaged across years to derive information about early and late active species.
+
+\newpage
+
+**Table S1.5** Summary of linear regression analysis for average phenological shifts (slope estimates) of flight activity responses (onset, peak, end) across all species by vegetation type combinations (n = 229).
+
+|                        |                    |                |             |
+|------------------------|--------------------|----------------|-------------|
+| **Phenological event** | **Slope estimate** | **Std. error** | **P value** |
+| **Onset**              | -0.46              | 0.09           | \<0.001     |
+| **Peak**               | -0.85              | 0.13           | \<0.001     |
+| **End**                | -0.71              | 0.14           | \<0.001     |
+
+: \newpage
+
+```{r fig.height=6,fig.width=6}
+#| echo: false
+#| message: false
+#| warning: false
+#| results: hide
+
+# Estimates of temporal trend in onset of activity
+df_phenology <- read.csv("Data/phenology_estimates/onset_estimates_na_removed.csv",sep=",",
+                         stringsAsFactors = FALSE, header = TRUE)
+
+df_phenology <- subset(df_phenology, df_phenology$plot!= "Art5" | df_phenology$species!= "S.dorsata")
+
+df_phenology <- subset(df_phenology, df_phenology$plot!= "Art3" | df_phenology$species!= "D.groenlandica")
+
+df_phenology$plot[df_phenology$plot == "Art2"] <-
+  "Wet fen"
+df_phenology$plot[df_phenology$plot == "Art3"] <-
+  "Mesic heath"
+df_phenology$plot[df_phenology$plot == "Art5"] <-
+  "Arid heath"
+
+#Average linear trend for all species
+
+#df_phenology$speciesplot <-
+#  as.factor(paste(df_phenology$species, df_phenology$plot))
+
+lm_all_onset <- lm(.onset ~ year*species*plot, data = df_phenology, weights = .inv_std_err / mean(.inv_std_err))
+#summary(lm_all_onset)
+
+(mm_plot_onset <- ggplot(df_phenology, aes(x = year, y = .onset, colour = species)) +
+    facet_wrap(~plot, nrow=1) +   # a panel for each mountain range
+    geom_point(alpha = 0.5) +
+    ylab("Onset of flight activity (DoY)") +
+    xlab("Year") +
+    scale_color_viridis_d(option = "plasma") +
+    theme_classic() +
+    geom_line(data = cbind(df_phenology, pred = predict(lm_all_onset)), aes(y = pred), size = 1) +  # adding predicted line from mixed model 
+    theme(legend.position = "bottom",
+          panel.spacing = unit(2, "lines"),
+          plot.margin=unit(c(2, 1, 2, 1), "cm"))  # adding space between panels
+)
+
+df_phenology_peak <- read.csv("Data/phenology_estimates/peak_estimates_na_removed.csv",sep=",",
+                              stringsAsFactors = FALSE, header = TRUE)
+
+df_phenology_peak$plot[df_phenology_peak$plot == "Art2"] <-
+  "Wet fen"
+df_phenology_peak$plot[df_phenology_peak$plot == "Art3"] <-
+  "Mesic heath"
+df_phenology_peak$plot[df_phenology_peak$plot == "Art5"] <-
+  "Arid heath"
+
+df_phenology_peak <- subset(df_phenology_peak, df_phenology_peak$plot!= "Art5" | df_phenology_peak$species!= "S.dorsata")
+
+df_phenology_peak <- subset(df_phenology_peak, df_phenology_peak$plot!= "Art3" | df_phenology_peak$species!= "D.groenlandica")
+
+df_phenology_peak <- df_phenology_peak |>
+  mutate(.inv_std_err = 1/.se)
+
+
+lm_all_peak <- lm(.peak ~ year*species*plot, data = df_phenology_peak, weights = .inv_std_err / mean(.inv_std_err))
+#summary(lm_all_peak)
+
+(mm_plot_peak <- ggplot(df_phenology_peak, aes(x = year, y = .peak, colour = species)) +
+    facet_wrap(~plot, nrow=1) +   # a panel for each mountain range
+    geom_point(alpha = 0.5) +
+    ylab("Peak of flight activity (DoY)") +
+    xlab("Year") +
+    scale_color_viridis_d(option = "plasma")+
+    theme_classic() +
+    geom_line(data = cbind(df_phenology_peak, pred = predict(lm_all_peak)), aes(y = pred), size = 1) +  # adding predicted line from mixed model 
+    theme(legend.position = "bottom",
+          panel.spacing = unit(1, "lines"),
+          plot.margin=unit(c(2, 1, 2, 1), "cm"))  # adding space between panels
+)
+
+
+df_phenology_end <- read.csv("Data/phenology_estimates/end_estimates_na_removed.csv",sep=",",
+                             stringsAsFactors = FALSE, header = TRUE)
+
+df_phenology_end$plot[df_phenology_end$plot == "Art2"] <-
+  "Wet fen"
+df_phenology_end$plot[df_phenology_end$plot == "Art3"] <-
+  "Mesic heath"
+df_phenology_end$plot[df_phenology_end$plot == "Art5"] <-
+  "Arid heath"
+
+df_phenology_end <- subset(df_phenology_end, df_phenology_end$plot!= "Art5" | df_phenology_end$species!= "S.dorsata")
+
+df_phenology_end <- subset(df_phenology_end, df_phenology_end$plot!= "Art3" | df_phenology_end$species!= "D.groenlandica")
+
+df_phenology_end <- df_phenology_end |>
+  mutate(.inv_std_err = 1/.se)
+
+lm_all_end <- lm(.end ~ year*species*plot, data = df_phenology_end, weights = .inv_std_err / mean(.inv_std_err))
+#summary(lm_all_end)
+
+(mm_plot <- ggplot(df_phenology_end, aes(x = year, y = .end, colour = species)) +
+    facet_wrap(~plot, nrow=1) +   # a panel for each mountain range
+    geom_point(alpha = 0.5) +
+    ylab("End of flight activity (DoY)") +
+    xlab("Year") +
+    scale_color_viridis_d(option = "plasma")+
+    theme_classic() +
+    geom_line(data = cbind(df_phenology_end, pred = predict(lm_all_end)), aes(y = pred), size = 1) +  # adding predicted line from mixed model 
+    theme(legend.position = "bottom",
+          panel.spacing = unit(1, "lines"),
+          plot.margin=unit(c(2, 1, 2, 1), "cm"))  # adding space between panels
+)
+```
+
+\newpage
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+library(lattice)
+
+# Estimates of temporal trend in onset of activity
+
+lmer_onset <- lmer(
+  .onset ~ year + (1 + year | species) + (1 | plot), 
+  data = df_phenology, 
+  weights = .inv_std_err / mean(.inv_std_err)
+)
+
+summary(lmer_onset)
+
+VarCorr(lmer_onset)
+
+dotplot(ranef(lmer_onset, condVar = TRUE), scales = list(relation = "free"))
+
+dotplot(coef(lmer_onset), scales = list(relation = "free"))
+
+lmer_no_slope_onset <- lmer(
+  .onset ~ year + (1 | plot), 
+  data = df_phenology, 
+  weights = .inv_std_err / mean(.inv_std_err)
+)
+
+anova(lmer_onset, lmer_no_slope_onset)
+
+confint(lmer_onset, method = "boot")
+
+```
+
+\newpage
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+df_phenology_peak <- df_phenology_peak |>
+  mutate(.inv_std_err = 1/.se)
+
+
+#with linear mixed model
+lmer_peak <- lmer(
+  .peak ~ year + (1 + year | species) + (1 | plot), 
+  data = df_phenology_peak, 
+  weights = .inv_std_err / mean(.inv_std_err)
+)
+
+summary(lmer_peak)
+
+
+dotplot(ranef(lmer_peak, condVar = TRUE), scales = list(relation = "free"))
+
+dotplot(coef(lmer_peak), scales = list(relation = "free"))
+
+lmer_no_slope_peak <- lmer(
+  .peak ~ year + (1 | plot), 
+  data = df_phenology_peak, 
+  weights = .inv_std_err / mean(.inv_std_err)
+)
+
+anova(lmer_peak, lmer_no_slope_peak)
+
+confint(lmer_peak, method = "boot")
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+df_phenology_end <- df_phenology_end |>
+  mutate(.inv_std_err = 1/.se)
+
+#with linear mixed model
+lmer_end <- lmer(
+  .end ~ year + (1 + year | species) + (1 | plot), 
+  data = df_phenology_end, 
+  weights = .inv_std_err / mean(.inv_std_err)
+)
+
+summary(lmer_end)
+
+lmer_no_slope_end <- lmer(
+  .end ~ year + (1 | plot), 
+  data = df_phenology_end, 
+  weights = .inv_std_err / mean(.inv_std_err)
+)
+
+anova(lmer_end, lmer_no_slope_end)
+
+confint(lmer_end, method = "boot")
+
+dotplot(ranef(lmer_end, condVar = TRUE), scales = list(relation = "free"))
+
+dotplot(coef(lmer_end), scales = list(relation = "free"))
+```
+
+\newpage
+
+**Table S1.6** Summary of linear mixed models of phenological shifts (slope estimates) of flight activity responses (onset, peak, end) across *D. segnis*, *S. almqvistii*, *S. sanctipauli* that are present in all vegetation types. This is to test differences in phenological responses across vegetation types. The results show that vegetation type accounts for limited variance in the model and there are very little differences in responses among vegetation types.
+
+|           |               |                 |                |             |
+|-----------|---------------|-----------------|----------------|-------------|
+|           | **Predictor** | **Coefficient** | **Std. error** | **P value** |
+| **Onset** | **Year**      | -0.47           | 0.18           | \<0.01      |
+| **Peak**  | **Year**      | -0.93           | 0.17           | \<0.001     |
+| **End**   | **Year**      | -0.82           | 0.18           | \<0.001     |
+
+|           |                 |           |              |               |
+|-----------|-----------------|-----------|--------------|---------------|
+|           | **Name**        | **Group** | **Variance** | **Std. dev.** |
+| **Onset** | Species         | Intercept | 4.59         | 2.14          |
+|           |                 | Year      | 0.03         | 0.17          |
+|           | Vegetation type | Intercept | 3.78         | 1.94          |
+|           |                 | Year      | 0.03         | 0.18          |
+|           | Residual        |           | 46.50        | 6.82          |
+| **Peak**  | Species         | Intercept | 51.47        | 7.17          |
+|           |                 | Year      | 0.002        | 0.005         |
+|           | Vegetation type | Intercept | 0.004        | 0.0006        |
+|           |                 | Year      | 0.003        | 0.005         |
+|           | Residual        |           | 115.80       | 10.76         |
+| **End**   | Species         | Intercept | 35.32        | 5.94          |
+|           |                 | Year      | 0.001        | 0.003         |
+|           | Vegetation type | Intercept | 0.74         | 0.86          |
+|           |                 | Year      | 0.004        | 11.61         |
+|           | Residual        |           | 134.39       | 11.59         |
+
+\newpage
+
+```{r fig.height=8,fig.width=8}
+#| echo: false
+#| message: false
+#| warning: false
+
+require(readxl)
+
+df_onset_all <- readxl::read_xlsx("Data/Climate_data/Figure\\df_onset_all.xlsx")
+
+df_peak_all <- readxl::read_xlsx("Data/Climate_data/Figure\\df_peak_all.xlsx")
+
+df_end_all <- readxl::read_xlsx("Data/Climate_data/Figure\\df_end_all.xlsx")
+
+
+ggplot() +
+  geom_point(df_onset_all, mapping = aes(Year, Onset_Temp, color = Species_name), shape = 1, size = 2, stroke = 1) +
+  geom_line(df_onset_all, mapping = aes(Year, Onset_Temp, color = Species_name), size = 1) +
+  geom_point(df_peak_all, mapping = aes(Year, Peak_Temp, color = Species_name), shape = 6, size = 2, stroke = 1) +
+  geom_line(df_peak_all, mapping = aes(Year, Peak_Temp, color = Species_name), size = 1) +
+  geom_point(df_end_all, mapping = aes(Year, End_Temp, color = Species_name), shape = 5, size = 2, stroke = 1) +
+  geom_line(df_end_all, mapping = aes(Year, End_Temp, color = Species_name), size = 1) +
+  ylim(0,9) +
+  ylab("Temperature (ºC)") +
+  xlab("") +
+  scale_color_viridis_d(option = "plasma", name = "Species") +
+  facet_wrap( ~ Species_name) +
+  theme_bw() +
+  theme(strip.background.x = element_rect(fill = "white"),
+        strip.text = element_text(face = "italic"),
+        plot.margin = margin(0,0.5,0,0.5, unit = "cm"),
+        axis.title.y = element_text(size = 12, vjust = 4),
+        legend.position = "top",
+        legend.text = element_text(face = "italic"))
+```
+
+**Figure S1.5** Temporal changes in average temperature experienced by each species 30 days prior to each mean phenological event (onset, peak and end of flight activity) minus one standard deviation.
+
+\newpage
+
+```{r fig.height=5,fig.width=5}
+#| echo: false
+#| message: false
+#| warning: false
+
+df_snow <- readxl::read_xlsx("Data/Climate_data/Snowmelt\\Snowmelt_Climatestation.xlsx")
+
+#Temporal changes in snowmelt timing figure
+
+df_snow <- subset(df_snow, !df_snow$Year > 2014)
+
+ggplot(df_snow, aes(Year, SnowmeltDOY)) +
+  geom_point(size = 3) +
+  geom_line() +
+  ylab("Snowmelt timing (Day of Year)") +
+  xlab("Year") +
+  theme_bw() +
+  theme(axis.title.y = element_text(size = 14, vjust = 4),
+        axis.text = element_text(size = 12),
+        plot.margin = margin(1,1,1,1, unit = "cm"))
+```
+
+**Figure S1.6** Trend in snowmelt timing across the study period (1996 – 2014) at Zackenberg. The snow depth is measured from an automatic snow depth sensor and snowmelt timing was then determined to be the day where the snow depth was \< 10 cm. The summary output from a simple linear regression analysis showed that the snow melted -0.67 ± 0.41 days earlier per year, however, the trend was not significant (RSE~17~ = 9.82, *R^2^*= 0.14, *P* = 0.12).
+
+\newpage
+
+**Table S1.7** Summary of output from linear regression of air temperature trends across years (1996 - 2014) as shown in Figure S1.1. The species and phenological event columns indicate which 30-day temperature window the yearly trends have been calculated from. Temperatures before each phenological event have significantly increased for all species, and the temperature increase is largest for the end of activity.
+
+\newpage
+
+|  |  |  |  |  |  |  |
+|----|----|----|----|----|----|----|
+| **Species** | **Phenological event** | **Slope** | **SE** | **Tvalue** | **Pvalue** | **R^2^** |
+| Dry.gro | Onset | 0.072 | 0.018 | 3.915 | 0.000 | 0.228 |
+| Dry.seg | Onset | 0.074 | 0.018 | 4.174 | 0.000 | 0.251 |
+| Pha.bid | Onset | 0.072 | 0.018 | 3.915 | 0.000 | 0.228 |
+| Spi.alm | Onset | 0.074 | 0.018 | 4.174 | 0.000 | 0.251 |
+| Spi.dor | Onset | 0.075 | 0.018 | 4.159 | 0.000 | 0.250 |
+| Spi.mal | Onset | 0.065 | 0.019 | 3.378 | 0.001 | 0.180 |
+| Spi.nov | Onset | 0.072 | 0.018 | 3.915 | 0.000 | 0.228 |
+| Spi.san | Onset | 0.074 | 0.018 | 4.174 | 0.000 | 0.251 |
+| Spi.tun | Onset | 0.072 | 0.018 | 3.915 | 0.000 | 0.228 |
+| Spi.zai | Onset | 0.074 | 0.018 | 4.174 | 0.000 | 0.251 |
+| Dry.gro | Peak | 0.064 | 0.021 | 3.096 | 0.003 | 0.148 |
+| Dry.seg | Peak | 0.070 | 0.019 | 3.661 | 0.001 | 0.196 |
+| Pha.bid | Peak | 0.064 | 0.021 | 3.096 | 0.003 | 0.148 |
+| Spi.alm | Peak | 0.068 | 0.019 | 3.468 | 0.001 | 0.179 |
+| Spi.dor | Peak | 0.073 | 0.020 | 3.620 | 0.001 | 0.192 |
+| Spi.mal | Peak | 0.068 | 0.019 | 3.468 | 0.001 | 0.179 |
+| Spi.nov | Peak | 0.068 | 0.019 | 3.468 | 0.001 | 0.179 |
+| Spi.san | Peak | 0.073 | 0.020 | 3.620 | 0.001 | 0.192 |
+| Spi.tun | Peak | 0.068 | 0.019 | 3.468 | 0.001 | 0.179 |
+| Spi.zai | Peak | 0.070 | 0.019 | 3.661 | 0.001 | 0.196 |
+| Dry.gro | End | 0.097 | 0.024 | 4.110 | 0.000 | 0.245 |
+| Dry.seg | End | 0.101 | 0.022 | 4.497 | 0.000 | 0.280 |
+| Pha.bid | End | 0.101 | 0.022 | 4.497 | 0.000 | 0.280 |
+| Spi.alm | End | 0.093 | 0.027 | 3.486 | 0.001 | 0.189 |
+| Spi.dor | End | 0.086 | 0.027 | 3.199 | 0.002 | 0.164 |
+| Spi.mal | End | 0.097 | 0.024 | 4.110 | 0.000 | 0.245 |
+| Spi.nov | End | 0.097 | 0.024 | 4.110 | 0.000 | 0.245 |
+| Spi.san | End | 0.097 | 0.024 | 4.110 | 0.000 | 0.245 |
+| Spi.tun | End | 0.100 | 0.025 | 3.962 | 0.000 | 0.232 |
+| Spi.zai | End | 0.097 | 0.024 | 4.110 | 0.000 | 0.245 |
+
+\newpage
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Trend in onset of activity associated with temperature and snowmelt
+
+library(tidyverse)
+
+df_onset <- read.csv("Data/phenology_estimates/onset_temp_trend_nas_removed.csv",sep=",",
+                       stringsAsFactors = FALSE, header = TRUE)
+
+# Get climate data
+
+df_temp <- read.csv("Data/Species_data_clean/All_species_cleanup_onset.csv",sep=",",
+                     stringsAsFactors = FALSE, header = TRUE)
+
+df_temp$Species_name[df_temp$Species_name == "Dry.gro"] <- "D.groenlandica"
+df_temp$Species_name[df_temp$Species_name == "Dry.seg"] <- "D.segnis"
+df_temp$Species_name[df_temp$Species_name == "Lim.gro"] <- "L.groenlandica"
+df_temp$Species_name[df_temp$Species_name == "Pha.bid"] <- "P.bidentata"
+df_temp$Species_name[df_temp$Species_name == "Spi.alm"] <- "S.almqvistii"
+df_temp$Species_name[df_temp$Species_name == "Spi.def"] <- "S.deflorata"
+df_temp$Species_name[df_temp$Species_name == "Spi.dor"] <- "S.dorsata"
+df_temp$Species_name[df_temp$Species_name == "Spi.mal"] <- "S.malaisei"
+df_temp$Species_name[df_temp$Species_name == "Spi.mel"] <- "S.melanosoma"
+df_temp$Species_name[df_temp$Species_name == "Spi.nov"] <- "S.novaesibiriae"
+df_temp$Species_name[df_temp$Species_name == "Spi.san"] <- "S.sanctipauli"
+df_temp$Species_name[df_temp$Species_name == "Spi.tun"] <- "S.tundrae"
+df_temp$Species_name[df_temp$Species_name == "Spi.zai"] <- "S.zaitzevi"
+
+
+
+df_onset$Temperature <- df_temp$Temperature[match(paste0(df_onset$year,df_onset$species,df_onset$plot),
+                                                                    paste0(df_temp$Year,df_temp$Species_name,df_temp$Plot))]
+
+df_onset$Snowmelt <- df_temp$SnowmeltDOY[match(paste0(df_onset$year,df_onset$species,df_onset$plot),
+                                                                 paste0(df_temp$Year,df_temp$Species_name,df_temp$Plot))]
+
+
+df_test <- subset(df_onset, df_onset$species == "D.segnis")
+
+df_test <- subset(df_test, df_test$plot == "Art2")
+
+m.1 <- lm(trend ~ Temperature + Snowmelt, df_test, weights = inv_std_err)
+
+summary(m.1)
+
+df_onset$speciesplot <-
+  as.factor(paste(df_onset$species, df_onset$plot))
+
+snow <- df_onset |>
+  ggplot(aes(x = Snowmelt, y = trend, group = speciesplot)) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci, color = species),
+                alpha = 0.5, width = 0.8) +
+  geom_point(aes(color = species, shape = plot), size = 4) +
+  geom_line(aes(color = species), stat="smooth",method = "lm",
+            size = 1.5,
+            alpha = 0.8) +
+  ylab("Onset of flight activity (Day of Year)") +
+  xlab("Snowmelt (Day of Year)") +
+  #scale_fill_okabe_ito() +
+  #scale_color_okabe_ito() +
+  scale_color_brewer(palette = "RdYlBu") +
+  scale_fill_brewer(palette = "RdYlBu") +
+  coord_cartesian(ylim=c(170, 210))+
+  #facet_wrap(~species) +
+  theme_bw() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_text(size = 12, vjust = 3),
+        axis.title.x = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(7,0.2,7,1, unit = "cm"))
+
+
+temp <- df_onset |>
+  ggplot(aes(x = Temperature, y = trend, group = speciesplot)) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci, color = species),
+                alpha = 0.5, width = 0.1) +
+  geom_point(aes(color = species, shape = plot), size = 4) +
+  geom_line(aes(color = species), stat="smooth",method = "lm",
+            size = 1.5,
+            alpha = 0.8) +
+  ylab("Onset of flight activity (Day of Year)") +
+  xlab("Temperature (ºC)") +
+  #scale_fill_okabe_ito() +
+  #scale_color_okabe_ito() +
+  scale_color_brewer(palette = "RdYlBu") +
+  scale_fill_brewer(palette = "RdYlBu") +
+  coord_cartesian(ylim=c(170, 210))+
+  #facet_wrap(~species) +
+  theme_bw() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_blank(),
+        axis.title.x = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(7,1,7,0.2, unit = "cm"))
+
+
+require(ggpubr)
+
+ggarrange(snow, temp, nrow = 1)
+
+#####################Testing trends with scaled variables######################
+
+# Scale climate predictors to compare effect sizes
+
+df_onset$temp_scaled <- scale(df_onset$Temperature, center = F)
+df_onset$snow_scaled <- scale(df_onset$Snowmelt, center = F)
+df_onset$trend_scaled <- scale(df_onset$trend, center = F)
+df_onset$inv_std_error_scaled <- scale(df_onset$inv_std_err, center = F)
+
+colnames(df_onset)[12] ="temp_scaled"
+colnames(df_onset)[13] ="snow_scaled"
+colnames(df_onset)[14] ="trend_scaled"
+colnames(df_onset)[15] ="inv_std_err_scaled"
+
+df_test <- subset(df_onset, df_onset$species == "S.zaitzevi")
+
+df_test <- subset(df_test, df_test$plot == "Art2")
+
+
+lm.test <- lm(trend ~ snow_scaled + temp_scaled, data = df_test, weights = inv_std_err_scaled / mean(inv_std_err_scaled))
+summary(lm.test)
+
+summary(lm.test)$coefficients[2]
+
+
+df_summary_lm_climate <-
+  data.frame(
+    species = character(),
+    plot = character(),
+    pheno_event = character(),
+    slope1 = numeric(),
+    slope2 = numeric(),
+    SE1 = numeric(),
+    SE2 = numeric(),
+    Tvalue1 = numeric(),
+    Tvalue2 = numeric(),
+    Pvalue1 = numeric(),
+    Pvalue2 = numeric(),
+    Rsquare = numeric(),
+    AdjRsquare = numeric(),
+    #Count = numeric(),
+    n = numeric(),
+    Residual = numeric()
+  )
+
+for (i in unique(df_onset$species)) {
+  print(i)
+  df8b <- subset(df_onset, species == i)
+  for (j in unique(df8b$plot)) {
+    df8a <- subset(df8b, plot == j)
+    
+    if (sum(!is.na(df8a$trend)) < 6) {
+      df_other <- data.frame(
+        species = df8a$species[1],
+        plot = df8a$plot[1],
+        pheno_event = "Onset",
+        slope1 = NA,
+        slope2 = NA,
+        SE1 = NA,
+        SE2 = NA,
+        Tvalue1 = NA,
+        Tvalue2 = NA,
+        Pvalue1 = NA,
+        Pvalue2 = NA,
+        Rsquare = NA,
+        AdjRsquare = NA,
+        #Count = NA,
+        n = NA,
+        Residual = NA
+      )
+    }
+    else{
+      mod1 <- lm(trend_scaled ~ snow_scaled + temp_scaled, data = df8a, weights = inv_std_err_scaled / mean(inv_std_err_scaled))
+      Residual1 <- sqrt(deviance(mod1) / df.residual(mod1))
+      df_other <- data.frame(
+        species = df8a$species[1],
+        plot = df8a$plot[1],
+        pheno_event = "Onset",
+        slope1 = summary(mod1)$coefficients[2],
+        slope2 = summary(mod1)$coefficients[3],
+        SE1 = summary(mod1)$coefficients[5],
+        SE2 = summary(mod1)$coefficients[6],
+        Tvalue1 = summary(mod1)$coefficients[8],
+        Tvalue2 = summary(mod1)$coefficients[9],
+        Pvalue1 = summary(mod1)$coefficients[11],
+        Pvalue2 = summary(mod1)$coefficients[12],
+        Rsquare = summary(mod1)$r.squared,
+        AdjRsquare = summary(mod1)$adj.r.squared,
+        #Count = sum(df8a$TotalAbundance),
+        n = sum(!is.na(df8a$trend)),
+        Residual = Residual1
+      )
+      df_summary_lm_climate <- bind_rows(df_summary_lm_climate, df_other)
+    }
+    #plot(mod1)
+    
+  }
+}
+
+df_summary_lm_climate$slope1 <- df_summary_lm_climate$slope1*10
+df_summary_lm_climate$slope2 <- df_summary_lm_climate$slope2*10
+df_summary_lm_climate$SE1 <- df_summary_lm_climate$SE1*10
+df_summary_lm_climate$SE2 <- df_summary_lm_climate$SE2*10
+
+#write_xlsx(df_summary_lm_climate, "Data/model_summaries\\df_summary_lm_climate.xlsx", col_names = TRUE)
+
+
+####Figure of slopes#####
+
+snow_onset <- ggplot(df_summary_lm_climate, mapping = aes(slope1,species)) +
+  geom_errorbar(aes(xmin = slope1-SE1, xmax = slope1+SE1, color = species),
+                alpha = 0.8, width = 0.1, linewidth = 0.6) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(aes(fill=species, shape = plot), color = "black", size = 3) +
+  scale_shape_manual(values=c(21,22,24)) +
+  xlab("") +
+  ylab("") +
+  scale_color_viridis_d(option = "plasma") +
+  scale_fill_viridis_d(option = "plasma") +
+  coord_cartesian(xlim=c(-6, 6))+
+  theme_test() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        #axis.title.y = element_text(size = 12, vjust = 3),
+        #axis.title.x = element_text(size = 12),
+        #axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size = 10, face = "italic"),
+        plot.margin = margin(1,0,0,0.5, unit = "cm"))
+
+
+temp_onset <- ggplot(df_summary_lm_climate, mapping = aes(slope2,species)) +
+  geom_errorbar(aes(xmin = slope2-SE2, xmax = slope2+SE2, color = species),
+                alpha = 0.8, width = 0.1, linewidth = 0.6) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(aes(fill=species, shape = plot), color = "black", size = 3) +
+  scale_shape_manual(values=c(21,22,24)) +
+  xlab("") +
+  ylab("") +
+  scale_color_viridis_d(option = "plasma") +
+  scale_fill_viridis_d(option = "plasma") +
+  coord_cartesian(xlim=c(-3, 3))+
+  theme_test() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_blank(),
+        #axis.ticks.x = element_blank(),
+        #axis.title.x = element_text(size = 12),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+
+require(ggpubr)
+
+onset <- ggarrange(snow_onset,temp_onset)
+
+# Estimates of temporal trend in onset of activity
+
+lmer_onset_clim <- lmer(
+  trend ~ year + Snowmelt + Temperature + (1 + Temperature + Snowmelt | species) + (1 | plot), 
+  data = df_onset, 
+  weights = inv_std_err / mean(inv_std_err)
+)
+
+summary(lmer_onset_clim)
+
+VarCorr(lmer_onset_clim)
+
+dotplot(ranef(lmer_onset, condVar = TRUE), scales = list(relation = "free"))
+
+dotplot(coef(lmer_onset), scales = list(relation = "free"))
+
+lmer_no_slope_onset_clim <- lmer(
+  trend ~ year + Snowmelt + Temperature + (1 | plot), 
+  data = df_onset, 
+  weights = inv_std_err / mean(inv_std_err)
+)
+
+anova(lmer_onset_clim, lmer_no_slope_onset_clim)
+
+confint(lmer_onset, method = "boot")
+
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Trend in peak of activity associated with temperature and snowmelt
+
+library(tidyverse)
+
+df_peak <- read.csv("Data/phenology_estimates/peak_temp_trend_nas_removed.csv",sep=",",
+                     stringsAsFactors = FALSE, header = TRUE)
+
+# Get climate data
+
+df_temp <- read.csv("Data/Species_data_clean/All_species_cleanup_peak.csv",sep=",",
+                    stringsAsFactors = FALSE, header = TRUE)
+
+df_temp$Species_name[df_temp$Species_name == "Dry.gro"] <- "D.groenlandica"
+df_temp$Species_name[df_temp$Species_name == "Dry.seg"] <- "D.segnis"
+df_temp$Species_name[df_temp$Species_name == "Lim.gro"] <- "L.groenlandica"
+df_temp$Species_name[df_temp$Species_name == "Pha.bid"] <- "P.bidentata"
+df_temp$Species_name[df_temp$Species_name == "Spi.alm"] <- "S.almqvistii"
+df_temp$Species_name[df_temp$Species_name == "Spi.def"] <- "S.deflorata"
+df_temp$Species_name[df_temp$Species_name == "Spi.dor"] <- "S.dorsata"
+df_temp$Species_name[df_temp$Species_name == "Spi.mal"] <- "S.malaisei"
+df_temp$Species_name[df_temp$Species_name == "Spi.mel"] <- "S.melanosoma"
+df_temp$Species_name[df_temp$Species_name == "Spi.nov"] <- "S.novaesibiriae"
+df_temp$Species_name[df_temp$Species_name == "Spi.san"] <- "S.sanctipauli"
+df_temp$Species_name[df_temp$Species_name == "Spi.tun"] <- "S.tundrae"
+df_temp$Species_name[df_temp$Species_name == "Spi.zai"] <- "S.zaitzevi"
+
+
+
+df_peak$Temperature <- df_temp$Temperature[match(paste0(df_peak$year,df_peak$species,df_peak$plot),
+                                                  paste0(df_temp$Year,df_temp$Species_name,df_temp$Plot))]
+
+df_peak$Snowmelt <- df_temp$SnowmeltDOY[match(paste0(df_peak$year,df_peak$species,df_peak$plot),
+                                               paste0(df_temp$Year,df_temp$Species_name,df_temp$Plot))]
+
+
+
+df_peak$speciesplot <-
+  as.factor(paste(df_peak$species, df_peak$plot))
+
+snow <- df_peak |>
+  ggplot(aes(x = Snowmelt, y = trend, group = speciesplot)) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci, color = species),
+                alpha = 0.5, width = 0.8) +
+  geom_point(aes(color = species, shape = plot), size = 4) +
+  geom_line(aes(color = species), stat="smooth",method = "lm",
+            size = 1.5,
+            alpha = 0.8) +
+  ylab("Peak of flight activity (Day of Year)") +
+  xlab("Snowmelt (Day of Year)") +
+  #scale_fill_okabe_ito() +
+  #scale_color_okabe_ito() +
+  scale_color_brewer(palette = "RdYlBu") +
+  scale_fill_brewer(palette = "RdYlBu") +
+  coord_cartesian(ylim=c(180, 230))+
+  #facet_wrap(~species) +
+  theme_bw() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_text(size = 12, vjust = 3),
+        axis.title.x = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(7,0.2,7,1, unit = "cm"))
+
+
+temp <- df_peak |>
+  ggplot(aes(x = Temperature, y = trend, group = speciesplot)) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci, color = species),
+                alpha = 0.5, width = 0.1) +
+  geom_point(aes(color = species, shape = plot), size = 4) +
+  geom_line(aes(color = species), stat="smooth",method = "lm",
+            size = 1.5,
+            alpha = 0.8) +
+  ylab("Peak of flight activity (Day of Year)") +
+  xlab("Temperature (ºC)") +
+  #scale_fill_okabe_ito() +
+  #scale_color_okabe_ito() +
+  scale_color_brewer(palette = "RdYlBu") +
+  scale_fill_brewer(palette = "RdYlBu") +
+  coord_cartesian(ylim=c(180, 230))+
+  #facet_wrap(~species) +
+  theme_bw() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_blank(),
+        axis.title.x = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(7,1,7,0.2, unit = "cm"))
+
+
+require(ggpubr)
+
+ggarrange(snow, temp, nrow = 1)
+
+#####################Testing trends with scaled variables######################
+
+# Scale climate predictors to compare effect sizes
+
+df_peak <- df_peak |>
+  mutate(inv_std_err = 1/se)
+
+df_peak$temp_scaled <- scale(df_peak$Temperature, center = F)
+df_peak$snow_scaled <- scale(df_peak$Snowmelt, center = F)
+df_peak$trend_scaled <- scale(df_peak$trend, center = F)
+df_peak$inv_std_error_scaled <- scale(df_peak$inv_std_err, center = F)
+
+colnames(df_peak)[12] ="temp_scaled"
+colnames(df_peak)[13] ="snow_scaled"
+colnames(df_peak)[14] ="trend_scaled"
+colnames(df_peak)[15] ="inv_std_err_scaled"
+
+df_test <- subset(df_peak, df_peak$species == "S.zaitzevi")
+
+df_test <- subset(df_test, df_test$plot == "Art2")
+
+
+lm.test <- lm(trend_scaled ~ temp_scaled, data = df_test, weights = inv_std_err_scaled / mean(inv_std_err_scaled))
+summary(lm.test)
+
+summary(lm.test)$coefficients[2]
+
+
+df_summary_lm_climate_peak <-
+  data.frame(
+    species = character(),
+    plot = character(),
+    pheno_event = character(),
+    slope1 = numeric(),
+    slope2 = numeric(),
+    SE1 = numeric(),
+    SE2 = numeric(),
+    Tvalue1 = numeric(),
+    Tvalue2 = numeric(),
+    Pvalue1 = numeric(),
+    Pvalue2 = numeric(),
+    Rsquare = numeric(),
+    AdjRsquare = numeric(),
+    #Count = numeric(),
+    n = numeric(),
+    Residual = numeric()
+  )
+
+for (i in unique(df_peak$species)) {
+  print(i)
+  df8b <- subset(df_peak, species == i)
+  for (j in unique(df8b$plot)) {
+    df8a <- subset(df8b, plot == j)
+    
+    if (sum(!is.na(df8a$trend)) < 6) {
+      df_other <- data.frame(
+        species = df8a$species[1],
+        plot = df8a$plot[1],
+        pheno_event = "peak",
+        slope1 = NA,
+        slope2 = NA,
+        SE1 = NA,
+        SE2 = NA,
+        Tvalue1 = NA,
+        Tvalue2 = NA,
+        Pvalue1 = NA,
+        Pvalue2 = NA,
+        Rsquare = NA,
+        AdjRsquare = NA,
+        #Count = NA,
+        n = NA,
+        Residual = NA
+      )
+    }
+    else{
+      mod1 <- lm(trend_scaled ~ snow_scaled + temp_scaled, data = df8a, weights = inv_std_err_scaled / mean(inv_std_err_scaled))
+      Residual1 <- sqrt(deviance(mod1) / df.residual(mod1))
+      df_other <- data.frame(
+        species = df8a$species[1],
+        plot = df8a$plot[1],
+        pheno_event = "peak",
+        slope1 = summary(mod1)$coefficients[2],
+        slope2 = summary(mod1)$coefficients[3],
+        SE1 = summary(mod1)$coefficients[5],
+        SE2 = summary(mod1)$coefficients[6],
+        Tvalue1 = summary(mod1)$coefficients[8],
+        Tvalue2 = summary(mod1)$coefficients[9],
+        Pvalue1 = summary(mod1)$coefficients[11],
+        Pvalue2 = summary(mod1)$coefficients[12],
+        Rsquare = summary(mod1)$r.squared,
+        AdjRsquare = summary(mod1)$adj.r.squared,
+        #Count = sum(df8a$TotalAbundance),
+        n = sum(!is.na(df8a$trend)),
+        Residual = Residual1
+      )
+      df_summary_lm_climate_peak <- bind_rows(df_summary_lm_climate_peak, df_other)
+    }
+    #plot(mod1)
+    
+  }
+}
+
+df_summary_lm_climate_peak$slope1 <- df_summary_lm_climate_peak$slope1*10
+df_summary_lm_climate_peak$slope2 <- df_summary_lm_climate_peak$slope2*10
+df_summary_lm_climate_peak$SE1 <- df_summary_lm_climate_peak$SE1*10
+df_summary_lm_climate_peak$SE2 <- df_summary_lm_climate_peak$SE2*10
+
+#write_xlsx(df_summary_lm_climate_peak, "Data/model_summaries\\df_summary_lm_climate_peak.xlsx", col_names = TRUE)
+
+####Figure of slopes#####
+
+snow_peak <- ggplot(df_summary_lm_climate_peak, mapping = aes(slope1,species)) +
+  geom_errorbar(aes(xmin = slope1-SE1, xmax = slope1+SE1, color = species),
+                alpha = 0.8, width = 0.1, linewidth = 0.6) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(aes(fill=species, shape = plot), color = "black", size = 3) +
+  scale_shape_manual(values=c(21,22,24)) +
+  xlab("") +
+  ylab("") +
+  scale_color_viridis_d(option = "plasma") +
+  scale_fill_viridis_d(option = "plasma") +
+  coord_cartesian(xlim=c(-6, 6))+
+  theme_test() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        #axis.title.y = element_text(size = 12, vjust = 3),
+        #axis.title.x = element_text(size = 12),
+        #axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size = 10, face = "italic"),
+        plot.margin = margin(0,0,1,0.5, unit = "cm"))
+
+
+temp_peak <- ggplot(df_summary_lm_climate_peak, mapping = aes(slope2,species)) +
+  geom_errorbar(aes(xmin = slope2-SE2, xmax = slope2+SE2, color = species),
+                alpha = 0.8, width = 0.1, linewidth = 0.6) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(aes(fill=species, shape = plot), color = "black", size = 3) +
+  scale_shape_manual(values=c(21,22,24)) +
+  ylab("") +
+  xlab("") +
+  scale_color_viridis_d(option = "plasma") +
+  scale_fill_viridis_d(option = "plasma") +
+  coord_cartesian(xlim=c(-3, 3))+
+  theme_test() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_blank(),
+        #axis.title.x = element_text(size = 12),
+        #axis.ticks.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+
+
+require(ggpubr)
+
+peak <- ggarrange(snow_peak,temp_peak)
+
+lmer_peak_clim <- lmer(
+  trend ~ year + Snowmelt + Temperature + (1 + Temperature + Snowmelt | species) + (1 | plot), 
+  data = df_peak, 
+  weights = inv_std_err / mean(inv_std_err)
+)
+
+summary(lmer_onset_clim)
+
+VarCorr(lmer_onset_clim)
+
+dotplot(ranef(lmer_onset, condVar = TRUE), scales = list(relation = "free"))
+
+dotplot(coef(lmer_onset), scales = list(relation = "free"))
+
+lmer_no_slope_peak_clim <- lmer(
+  trend ~ year + Snowmelt + Temperature + (1 | plot), 
+  data = df_peak, 
+  weights = inv_std_err / mean(inv_std_err)
+)
+
+anova(lmer_peak_clim, lmer_no_slope_peak_clim)
+
+confint(lmer_onset, method = "boot")
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+
+# Trend in end of activity associated with temperature and snowmelt
+
+df_end <- read.csv("Data/phenology_estimates\\end_temp_trend_nas_removed.csv",sep=",",stringsAsFactors = FALSE, header = TRUE)
+
+# Get climate data
+
+df_temp <- read.csv("Data/Species_data_clean/All_species_cleanup_end.csv",sep=",",
+                    stringsAsFactors = FALSE, header = TRUE)
+
+
+
+df_end$Temperature <- df_temp$Temperature[match(paste0(df_end$year,df_end$species,df_end$plot),
+                                                  paste0(df_temp$Year,df_temp$Species_name,df_temp$Plot))]
+
+df_end$Snowmelt <- df_temp$SnowmeltDOY[match(paste0(df_end$year,df_end$species,df_end$plot),
+                                               paste0(df_temp$Year,df_temp$Species_name,df_temp$Plot))]
+
+df_end$species[df_end$species == "Dry.gro"] <- "D.groenlandica"
+df_end$species[df_end$species == "Dry.seg"] <- "D.segnis"
+df_end$species[df_end$species == "Lim.gro"] <- "L.groenlandica"
+df_end$species[df_end$species == "Pha.bid"] <- "P.bidentata"
+df_end$species[df_end$species == "Spi.alm"] <- "S.almqvistii"
+df_end$species[df_end$species == "Spi.def"] <- "S.deflorata"
+df_end$species[df_end$species == "Spi.dor"] <- "S.dorsata"
+df_end$species[df_end$species == "Spi.mal"] <- "S.malaisei"
+df_end$species[df_end$species == "Spi.mel"] <- "S.melanosoma"
+df_end$species[df_end$species == "Spi.nov"] <- "S.novaesibiriae"
+df_end$species[df_end$species == "Spi.san"] <- "S.sanctipauli"
+df_end$species[df_end$species == "Spi.tun"] <- "S.tundrae"
+df_end$species[df_end$species == "Spi.zai"] <- "S.zaitzevi"
+
+df_end$speciesplot <-
+  as.factor(paste(df_end$species, df_end$plot))
+
+snow <- df_end |>
+  ggplot(aes(x = Snowmelt, y = trend, group = speciesplot)) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci, color = species),
+                alpha = 0.5, width = 0.8) +
+  geom_point(aes(color = species, shape = plot), size = 4) +
+  geom_line(aes(color = species), stat="smooth",method = "lm",
+            size = 1.5,
+            alpha = 0.8) +
+  ylab("end of flight activity (Day of Year)") +
+  xlab("Snowmelt (Day of Year)") +
+  #scale_fill_okabe_ito() +
+  #scale_color_okabe_ito() +
+  scale_color_brewer(palette = "RdYlBu") +
+  scale_fill_brewer(palette = "RdYlBu") +
+  coord_cartesian(ylim=c(170, 210))+
+  #facet_wrap(~species) +
+  theme_bw() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_text(size = 12, vjust = 3),
+        axis.title.x = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(7,0.2,7,1, unit = "cm"))
+
+
+temp <- df_end |>
+  ggplot(aes(x = Temperature, y = trend, group = speciesplot)) +
+  geom_errorbar(aes(ymin = lower_ci, ymax = upper_ci, color = species),
+                alpha = 0.5, width = 0.1) +
+  geom_point(aes(color = species, shape = plot), size = 4) +
+  geom_line(aes(color = species), stat="smooth",method = "lm",
+            size = 1.5,
+            alpha = 0.8) +
+  ylab("end of flight activity (Day of Year)") +
+  xlab("Temperature (ºC)") +
+  #scale_fill_okabe_ito() +
+  #scale_color_okabe_ito() +
+  scale_color_brewer(palette = "RdYlBu") +
+  scale_fill_brewer(palette = "RdYlBu") +
+  coord_cartesian(ylim=c(170, 210))+
+  #facet_wrap(~species) +
+  theme_bw() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_blank(),
+        axis.title.x = element_text(size = 12),
+        axis.text = element_text(size = 10),
+        plot.margin = margin(7,1,7,0.2, unit = "cm"))
+
+
+require(ggpubr)
+
+ggarrange(snow, temp, nrow = 1)
+
+#####################Testing trends with scaled variables######################
+
+# Scale climate predictors to compare effect sizes
+
+df_end <- df_end |>
+  mutate(inv_std_err = 1/se)
+
+df_end$temp_scaled <- scale(df_end$Temperature, center = F)
+df_end$snow_scaled <- scale(df_end$Snowmelt, center = F)
+df_end$trend_scaled <- scale(df_end$trend, center = F)
+df_end$inv_std_error_scaled <- scale(df_end$inv_std_err, center = F)
+
+colnames(df_end)[12] ="temp_scaled"
+colnames(df_end)[13] ="snow_scaled"
+colnames(df_end)[14] ="trend_scaled"
+colnames(df_end)[15] ="inv_std_err_scaled"
+
+df_test <- subset(df_end, df_end$species == "S.zaitzevi")
+
+df_test <- subset(df_test, df_test$plot == "Art2")
+
+
+lm.test <- lm(trend ~ Snowmelt + Temperature, data = df_test, weights = inv_std_err / mean(inv_std_err))
+summary(lm.test)
+
+summary(lm.test)$coefficients[2]
+
+
+df_summary_lm_climate_end <-
+  data.frame(
+    species = character(),
+    plot = character(),
+    pheno_event = character(),
+    slope1 = numeric(),
+    slope2 = numeric(),
+    SE1 = numeric(),
+    SE2 = numeric(),
+    Tvalue1 = numeric(),
+    Tvalue2 = numeric(),
+    Pvalue1 = numeric(),
+    Pvalue2 = numeric(),
+    Rsquare = numeric(),
+    AdjRsquare = numeric(),
+    #Count = numeric(),
+    n = numeric(),
+    Residual = numeric()
+  )
+
+for (i in unique(df_end$species)) {
+  print(i)
+  df8b <- subset(df_end, species == i)
+  for (j in unique(df8b$plot)) {
+    df8a <- subset(df8b, plot == j)
+    
+    if (sum(!is.na(df8a$trend)) < 6) {
+      df_other <- data.frame(
+        species = df8a$species[1],
+        plot = df8a$plot[1],
+        pheno_event = "end",
+        slope1 = NA,
+        slope2 = NA,
+        SE1 = NA,
+        SE2 = NA,
+        Tvalue1 = NA,
+        Tvalue2 = NA,
+        Pvalue1 = NA,
+        Pvalue2 = NA,
+        Rsquare = NA,
+        AdjRsquare = NA,
+        #Count = NA,
+        n = NA,
+        Residual = NA
+      )
+    }
+    else{
+      mod1 <- lm(trend_scaled ~ snow_scaled + temp_scaled, data = df8a, weights = inv_std_err_scaled / mean(inv_std_err_scaled))
+      Residual1 <- sqrt(deviance(mod1) / df.residual(mod1))
+      df_other <- data.frame(
+        species = df8a$species[1],
+        plot = df8a$plot[1],
+        pheno_event = "end",
+        slope1 = summary(mod1)$coefficients[2],
+        slope2 = summary(mod1)$coefficients[3],
+        SE1 = summary(mod1)$coefficients[5],
+        SE2 = summary(mod1)$coefficients[6],
+        Tvalue1 = summary(mod1)$coefficients[8],
+        Tvalue2 = summary(mod1)$coefficients[9],
+        Pvalue1 = summary(mod1)$coefficients[11],
+        Pvalue2 = summary(mod1)$coefficients[12],
+        Rsquare = summary(mod1)$r.squared,
+        AdjRsquare = summary(mod1)$adj.r.squared,
+        #Count = sum(df8a$TotalAbundance),
+        n = sum(!is.na(df8a$trend)),
+        Residual = Residual1
+      )
+      df_summary_lm_climate_end <- bind_rows(df_summary_lm_climate_end, df_other)
+    }
+    #plot(mod1)
+    
+  }
+}
+
+df_summary_lm_climate_end$slope1 <- df_summary_lm_climate_end$slope1*10
+df_summary_lm_climate_end$slope2 <- df_summary_lm_climate_end$slope2*10
+df_summary_lm_climate_end$SE1 <- df_summary_lm_climate_end$SE1*10
+df_summary_lm_climate_end$SE2 <- df_summary_lm_climate_end$SE2*10
+
+#write_xlsx(df_summary_lm_climate_end, "Data/model_summaries\\df_summary_lm_climate_end.xlsx", col_names = TRUE)
+
+####Figure of slopes#####
+
+snow_end <- ggplot(df_summary_lm_climate_end, mapping = aes(slope1,species)) +
+  geom_errorbar(aes(xmin = slope1-SE1, xmax = slope1+SE1, color = species),
+                alpha = 0.8, width = 0.1, linewidth = 0.6) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(aes(fill=species, shape = plot), color = "black", size = 3) +
+  scale_shape_manual(values=c(21,22,24)) +
+  xlab("Effect size (Scaled)") +
+  ylab("") +
+  scale_color_viridis_d(option = "plasma") +
+  scale_fill_viridis_d(option = "plasma") +
+  coord_cartesian(xlim=c(-6, 6))+
+  theme_test() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        #axis.title.y = element_text(size = 12, vjust = 3),
+        axis.title.x = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_text(size = 10, face = "italic"),
+        #axis.text.y = element_text(size = 10),
+        plot.margin = margin(-1,0,1.5,0.5, unit = "cm"))
+
+
+temp_end <- ggplot(df_summary_lm_climate_end, mapping = aes(slope2,species)) +
+  geom_errorbar(aes(xmin = slope2-SE2, xmax = slope2+SE2, color = species),
+                alpha = 0.8, width = 0.1, linewidth = 0.6) +
+  geom_vline(xintercept = 0, linetype = "dashed") +
+  geom_point(aes(fill=species, shape = plot), color = "black", size = 3) +
+  scale_shape_manual(values=c(21,22,24)) +
+  xlab("Effect size (Scaled)") +
+  ylab("") +
+  scale_color_viridis_d(option = "plasma") +
+  scale_fill_viridis_d(option = "plasma") +
+  coord_cartesian(xlim=c(-3, 3))+
+  theme_test() +
+  theme(legend.position = "none",
+        #strip.text = element_text(face = "italic"),
+        #strip.background = element_rect(fill="white"),
+        axis.title.y = element_blank(),
+        #axis.title.x = element_text(size = 12),
+        axis.title.x = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.text.y = element_blank(),
+        axis.ticks.y = element_blank())
+
+require(ggpubr)
+
+end <- ggarrange(snow_end,temp_end)
+
+ggarrange(onset,peak,end, nrow = 3, labels = c("A", "B", "C"), hjust = -2, 
+          vjust = c(2.5,-3,-8))
+
+lmer_end_clim <- lmer(
+  trend ~ year + Snowmelt + Temperature + (1 + Temperature + Snowmelt | species) + (1 | plot), 
+  data = df_end, 
+  weights = inv_std_err / mean(inv_std_err)
+)
+
+summary(lmer_end_clim)
+
+VarCorr(lmer_end_clim)
+
+dotplot(ranef(lmer_end, condVar = TRUE), scales = list(relation = "free"))
+
+dotplot(coef(lmer_end), scales = list(relation = "free"))
+
+lmer_no_slope_end_clim <- lmer(
+  trend ~ year + Snowmelt + Temperature + (1 | plot), 
+  data = df_end, 
+  weights = inv_std_err / mean(inv_std_err)
+)
+
+anova(lmer_end_clim, lmer_no_slope_end_clim)
+
+confint(lmer_end, method = "boot")
+
+```
+
+**Figure S1.7** Muscid fly species' phenology related to the timing of snowmelt and air temperature 30 days prior to an average phenological event minus one standard deviation. Each panel represents: A. Onset; B. Peak and C. End of the flight activity. Points represent standardized effect sizes of climate variables, with standard errors around the estimates. Standardized effect sizes are defined as the slope coefficients derived from scaled explanatory variables and weighted based on the inverse of the standard errors of the phenological event estimates. For snowmelt, values greater than 0 represent earlier phenology with earlier snowmelt dates. For temperature, values lower than 0 represent earlier phenology with warmer temperatures. Species with less than five years of data (n \< 5) were excluded from the analysis.
+
+\newpage
+
+**Phylogenetic comparative analysis on species' phenological responses to snowmelt timing and temperature**
+
+We used mtDNA sequences of the COI gene for high-Arctic Muscid fly species to construct a neighbor-joining tree for visualizing the phylogenetic relationships among species with branch lengths proportional to time. The branch lengths in the tree are very short (Figure S1.5), suggesting low genetic divergence among the sampled taxa.
+
+To further evaluate the potential influence of phylogeny on our conclusions, we applied Bayesian mixed-effects models to test the effects of snowmelt timing (snow_scaled), temperature (temp_scaled), and species traits (body size, flower-visiting behavior, and seasonality \[average_doy\]) on the onset, peak, and end of flight activity. The model was run for 800000 iterations with a burn-in of 200000 iterations. Priors for the (co)variance components (species and species_plot) followed the inverse-Wishart distribution with V = 1 and *v* = 50. The model convergence and mixing were assessed using trace and density plots. The trace plots showed good mixing, with no strong autocorrelation or trends over iterations. The density plots were smooth and unimodal, suggesting well-behaved posterior distributions. Heidelberger-Welch and Gelman-Rubin diagnostics confirmed that all parameters passed convergence tests.
+
+The phylogenetic signal was low and non-significant for all phenological response variables (H^2^\_onset = 0.09 (95% CI: 0.06, 0.13), H^2^\_peak = 0.07 (95% CI: 0.04, 0.10), and H^2^\_end = 0.10 (95% CI: 0.06, 0.14)). These results indicate that phylogeny does not substantially influence phenological shifts, but species' traits, particularly their seasonal activity pattern (i.e., whether they are early- or late-active species), are important drivers (Table 1.5).
+
+```{r fig.height=5,fig.width=5}
+#| echo: false
+#| message: false
+#| warning: false
+
+# AtPhylogenetic tree of Muscid flies at Zackenberg
+
+# Read the CSV file
+sequences_df <- read.csv("Data/dna_sequence_muscidae.csv", sep = ";", stringsAsFactors = FALSE)
+
+# Open a text file to write the FASTA format
+# Function to write FASTA file
+write_fasta <- function(df, output_file) {
+  if (!nrow(df)) {
+    stop("Data frame is empty! Check the input file.")
+  }
+  
+  # Open a text file to write the FASTA format
+  fileConn <- file(output_file, "w")
+  
+  for (i in 1:nrow(df)) {
+    # Write the header and sequence
+    writeLines(paste0(">", as.character(df$id[i])), fileConn)  # FASTA header
+    writeLines(as.character(df$sequence[i]), fileConn)  # DNA sequence
+  }
+  
+  close(fileConn)
+  message("FASTA file written successfully: ", output_file)
+}
+
+# Run the function to create a FASTA file
+output_file <- "sequences.fasta"
+write_fasta(sequences_df, output_file)
+
+# Check if the file exists
+if (file.exists(output_file)) {
+  message("Output file exists: ", output_file)
+} else {
+  stop("Output file was not created!")
+}
+
+fasta_content <- readLines("sequences.fasta")
+#print(fasta_content)
+
+library(DECIPHER)
+library(Biostrings)
+
+fasta_content <- readDNAStringSet("sequences.fasta")
+
+
+# Align the sequences
+aligned_sequences <- AlignSeqs(fasta_content)
+
+# Check the alignment
+print(aligned_sequences)
+
+library(ape)
+
+# Convert to DNAbin
+aligned_sequences_dnabin <- as.DNAbin(aligned_sequences)
+
+# Create a distance matrix (using Jukes-Cantor model or similar)
+dist_matrix <- dist.dna(aligned_sequences_dnabin, model = "JC")
+
+# Generate the UPGMA tree
+upgma_tree <- hclust(dist_matrix, method = "average")  # UPGMA uses the "average" method
+
+# Convert to a phylogenetic tree
+phylo_tree <- as.phylo(upgma_tree)
+
+#### Using neighbour-joining approach ####
+
+# Construct the neighbor-joining tree
+nj_tree <- nj(dist_matrix)
+
+#### Making a pretty phylo tree ####
+
+library(ggtree)
+library(treeio)
+
+ggtree(nj_tree) +
+  geom_tree(aes(color = branch.length)) +  # Color branches by length
+  geom_tiplab(size = 3, fontface = "italic") +
+  geom_nodepoint(aes(color = branch.length), size = 4) +
+  scale_color_viridis_c() +  # Use a color gradient
+  theme_tree2() +
+  coord_cartesian(xlim = c(0, 0.15)) + # Adjust the xlim to focus on a part of the tree
+  theme(legend.position = "bottom")
+```
+
+**Figure S1.8** Phylogenetic relationships among Muscidae species inferred from mtDNA COI gene data. Sequences were aligned using the `AlignSeqs` function from the DECIPHER package, and genetic distances were calculated using the Jukes-Cantor model. The neighbor-joining (NJ) tree was constructed based on the distance matrix. Branch lengths represent genetic divergence, with colors indicating variation in branch length.
+
+\newpage
+
+**Table S1.8** Summary of the Bayesian mixed-effects model estimating the effects of environmental variables and species traits on phenological trends in Arctic Muscidae. The table presents the effect size (posterior mean) and lower and upper 95% credible intervals. Estimates are considered significant if their 95% CI's do not overlap zero.
+
+| Onset of activity    | Effect size | Lower (CI 95%) | Upper (CI 95%) |
+|----------------------|-------------|----------------|----------------|
+| Intercept            | 27.52       | -43.92         | 96.85          |
+| snow_scaled          | 14.85       | 6.94           | 23.12          |
+| temp_scaled          | -3.07       | -4.10          | -2.11          |
+| year                 | -0.34       | -0.42          | -0.25          |
+| body_size            | -0.14       | -1.58          | 1.48           |
+| flower_visiting      | 0.06        | -2.19          | 2.37           |
+| seasonality          | 0.79        | 0.42           | 1.19           |
+| **Peak of activity** |             |                |                |
+| Intercept            | 46.51       | 8.20           | 86.55          |
+| snow_scaled          | 15.46       | 5.42           | 26.09          |
+| temp_scaled          | -3.86       | -5.67          | -1.95          |
+| year                 | -0.52       | -0.62          | -0.43          |
+| body_size            | 0.11        | -1.62          | 1.75           |
+| flower_visiting      | 0.11        | -2.48          | 2.62           |
+| seasonality          | 0.71        | 0.51           | 0.89           |
+| **End of activity**  |             |                |                |
+| Intercept            | 123.99      | 86.33          | 164.56         |
+| snow_scaled          | 11.66       | 3.68           | 19.90          |
+| temp_scaled          | -8.34       | -10.62         | -6.12          |
+| year                 | -0.32       | -0.40          | -0.23          |
+| body_size            | 0.13        | -1.57          | 1.54           |
+| flower_visiting      | -0.19       | -2.71          | 2.19           |
+| seasonality          | 0.26        | 0.08           | 0.42           |
+
+\newpage
+
+## References
+
+Wood, S.N., Scheipl, F. & Faraway, J.J. (2013). Straightforward intermediate rank tensor product smoothing in mixed models. *Stat Comp*. 23(3), 341 - 360.
