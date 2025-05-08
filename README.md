@@ -1,23 +1,29 @@
 # muscidae_phenology
 
 ## Content
-This repository contains the code and data necessary to replicate data analyses, figures and tables in the manuscript:
+This repository contains the code and data necessary to replicate data analyses, figures and tables in:
 
-***Species' traits modulate rapid changes in flight time in high-Arctic muscid flies under climate change***
+***Species’ traits modulate rapid changes in flight time in high-Arctic muscid flies under climate change***
 
-## Contact
-Anonymized
+- Scripts for phenology modeling and trait-based analysis
+- Data files derived from raw environmental and phenological observations
+- Figure-generation code for the main manuscript and supplementary materials
 
-## Data usage guidelines
+## Data sources and usage
 
-### Data
+# Phenology Observations
+Phenological data from Zackenberg, Northeast Greenland, were provided by the Greenland Ecosystem Monitoring Programme (GEM).
+Source: https://data.g-e-m.dk
+Both the raw data (as downloaded) and a cleaned/processed version with estimated phenological events are included in this repository.
 
-- Phenological observations at Zackenberg were provided by the Greenland Ecosystem Monitoring Programme. Family data for Muscidae is available at: https://data.g-e-m.dk/. Species data is available in this repository. 
+# Environmental Predictors
+Temperature and snowmelt timing data were also obtained from GEM.
+Source: https://data.g-e-m.dk
+This repository includes both the original data and a processed version with estimated environmental metrics.
 
-- Environmental predictors: Temperature and snowmelt observations for Zackenberg were also provided by the Greenland Ecosystem Monitoring Programme. Data available at: https://data.g-e-m.dk/ The raw data downloaded from the database is included in this repository (downloaded 13. January 2022) along with a formatted version including all estimated temperature and timing of snowmelt estimates.
-
-### Code 
-All code provided for data preparation and analysis is licensed under a MIT License. In accordance with the license the code is available to be shared and adapted, but we would appreciate attribution to the authors, e.g. through citation of the above manuscript, and indications where changes were made. Although not mandatory, we additionally suggest that code users contact and collaborate with contributors should the code form a substantial proportion of a particular publication or analysis.
+# Species Data
+Species trait and phenology data used in the analysis are publicly available on Dryad:
+🔗 https://doi.org/10.5061/dryad.3r2280gtm
 
 # Data preparation and clean up
 
@@ -49,13 +55,26 @@ The data preparation, cleaning and assembly scripts can be found here:
 /Data_clean_combine_species_data.R
 
 ```
-
-*Important:* Please note that this summarised data is for archival purposes only. If you intend to use the phenological observations in this dataset please refer to the data usage guidance for the raw data sets described above. 
-
 The following path leads directly to the cleaned abundance data (zero capture dates included etc.) used to conduct the analysis:
 
 ```
 /Data/Species_data_clean/All_species_clean.csv
+
+```
+
+# Data preparation
+Cleaned phenological metrics and environmental inputs are located in the following directories:
+
+```
+/Data/phenology_data
+/Data/Climate_data
+
+```
+
+DNA sequences for phylogenetic analysis:
+
+```
+/sequences.fasta
 
 ```
 
@@ -94,28 +113,36 @@ Scripts to derive phenology estimates through GAM:
 
 ```
 
-# Analysis scripts
-
-```
-/peak_week_final.R
-/onset_end_week_final.R
-/All_models_gam.R
-
-```
-
 
 # Supplementary material
 The following quarto documents with all relevant code and detailed descriptions of each step of GAM, trends in climate variables and linear mixed modelling analysis performed can be used to reproduce the analysis:
 
 
 ```
-/Supplementary_info.qmd
+/Supplementary_info_proceedings.qmd
 
 ```
 
-The following R scripts contains relevant code to reproduce figures 2 and 3
+# Trait-based Linear Models
+
+Scripts for linear regression analyses exploring relationships between climate trends and species traits:
+
+```
+/temporal_trend_traits.R
+/snowmelt_temperature_trends_traits.R
+
+```
+
+# Figures
+
+Scripts to recreate Figures 1–3 in the main manuscript:
 
 ```
 /figures_manuscript.R
+/fig3_new_24022025.R
+/figure_peak_with_zeros_removed.R
+/figure_onset_with_zeros_removed.R
+/figure_end_with_zeros_removed.R
 
 ```
+
