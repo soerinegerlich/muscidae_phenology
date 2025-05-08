@@ -20,6 +20,7 @@ Authors: Hannah Sørine Gerlich1, Sarah Loboda2, Gavin L. Simpson3, Jade Savage4
 Corresponding author: Hannah Sørine Gerlich; E-mail: soger@ecos.au.dk
 
 
+
 - Scripts for phenology modeling and trait-based analysis
 - Data files derived from raw environmental and phenological observations
 - Figure-generation code for the main manuscript and supplementary materials
