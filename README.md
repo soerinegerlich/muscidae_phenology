@@ -4,7 +4,7 @@
 This repository contains the code and data necessary to replicate data analyses, figures and tables in:
 
 ***Species’ traits modulate rapid changes in flight time in high-Arctic muscid flies under climate change***
-### Authors: Hannah Sørine Gerlich1, Sarah Loboda2, Gavin L. Simpson3, Jade Savage4, Niels M. Schmidt5, Martin Holmstrup1 and Toke T. Høye1
+Authors: Hannah Sørine Gerlich1, Sarah Loboda2, Gavin L. Simpson3, Jade Savage4, Niels M. Schmidt5, Martin Holmstrup1 and Toke T. Høye1
 1 Department of Ecoscience and Arctic Research Centre, Aarhus University, C.F. Møllers Allé 4-8, DK-8000 Aarhus C, Denmark 
 2 Fisheries and Oceans Canada, Maurice Lamontagne Institute, 850 Rte de la Mer, Mont-Joli, QC G5H 3Z4, Canada
 3 Department of Veterinary and Animal Sciences, Aarhus University, Tjele, Denmark
